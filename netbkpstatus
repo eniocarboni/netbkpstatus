@@ -1,5 +1,7 @@
 #! /usr/bin/perl
 
+# Original software and last version on https://github.com/eniocarboni/netbkpstatus
+#
 # See: http://www.symantec.com/business/support/index?page=content&id=HOWTO103805
 # field1 = Job ID
 # field2 = Job type
