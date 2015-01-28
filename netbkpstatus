@@ -1,0 +1,306 @@
+#! /usr/bin/perl
+
+# See: http://www.symantec.com/business/support/index?page=content&id=HOWTO103805
+# field1 = Job ID
+# field2 = Job type
+#### 0=>'backup', 1=>'archive', 2=>'restore', 3=>'verify', 4=>'duplicate', 5=>'phase 1 or phase 2 import', 
+#### 6=>'catalog backup', 7=>'vault duplicate', 8=>'label tape', 9=>'erase tape', 10=>'tape request', 
+#### 11=>'clean tape', 12=>'format tape', 13=>'physical inventory of robotic library', 
+#### 14=>'qualification test of drive or robotic library', 15=>'catalog recovery', 16=>'media contents', 
+#### 17=>'image cleanup', 18=>'LiveUpdate', 20=>'Replication (Auto Image Replication)', 
+#### 21=>'Import (Auto Image Replication)', 22=>'backup From Snapshot', 23=>'Replication (snap)', 
+#### 24=>'Import (snap)', 25=>'application state capture', 26=>'indexing', 27=>'index cleanup', 28=>'Snapshot', 
+#### 29=>'SnapIndex', 30=>'ActivateInstantRecovery', 31=>'DeactivateInstantRecovery', 32=>'ReactivateInstantRecovery', 
+#### 33=>'StopInstantRecovery', 34=InstantRecovery
+# field3 = State of the job
+#### 0=>'queued and awaiting resources', 1=>'active', 2=>'requeued and awaiting resources', 3=>'done', 4=>'suspended', 5=incomplete
+# field4 = Job status code
+# field5 = Policy name for the job
+# field6 = Job schedule name
+# field7 = Client name
+# field8 = Media server used by the job
+# field9 = Job started time
+# field10 = Elapsed time for the job
+# field11 = Job end time
+# field12 = Storage unit used by the job
+# field13 = Number of tries
+# field14 = Operation
+#### 0=>'tape mount', 1=>'tape positioning', 2=>'NetBackup connecting to a media server', 3=>'write to tape', 4=>'choose images', 
+#### 5=>'duplicate image', 6=>'choose media', 7=>'catalog backup', 8=>'tape eject and report', 10=>'read from tape', 11=>'duplicate', 
+#### 12=>'import', 13=>'verify', 14=>'restore', 15=>'catalog-backup', 16=>'vault operation', 17=>'label tape', 18=>'erase tape', 
+#### 19=>'query database', 20=>'process extents', 21=>'organize readers', 22=>'create snapshot', 23=>'delete snapshot', 24=>'recover DB', 
+#### 25=>'media contents', 26=>'request job resources', 27=>'parent job', 28 =>'indexing', 29=>'duplicate to remote master', 30=running
+# field15 = Amount of data written in kilobytes
+# field16 = Number of files written
+# field17 = Last written path
+# field18 = Percent complete
+# field19 = Job PID
+# field20 = User account (owner) that initiates the job
+# field21 = Subtype
+#### 0=>'immediate backup', 1=>'scheduled backup', 2=>'user-initiated backup or archive', 3=>'quick erase of tape', 4=>'long erase of tape', 5=database backup staging
+# field22 = Policy type
+#### 0 =>' Standard (UNIX and Linux clients)', 4 =>' Oracle', 6 =>' Informix-On-BAR', 7 =>' Sybase', 8 =>' MS-SharePoint portal server', 
+#### 10 =>' NetWare', 11 =>' DataTools-SQL-BackTrack', 13 =>' MS- Windows', 14 =>' OS/2', 15 =>' MS-SQL-Server', 16 =>' MS-Exchange-Server', 
+#### 17 =>' SAP', 18 =>' DB2', 19 =>' NDMP', 20 =>' FlashBackup', 22 =>' AFS (file systems)', 25 =>' Lotus Notes', 29 =>' FlashBackup-Windows', 
+#### 35 =>' NBU-Catalog', 39 =>' Enterprise_Vault', 40 =>' VMware', 41 = Hyper-V
+# field23 = Schedule type
+#### 0=>'full', 1=>'incremental', 2=>'user backup', 3=>'user archive', 4=>'cumulative-incremental', 5=tlog (transaction log backup)
+# field24 = Job priority assigned to this job as configured in the policy attributes
+# field25 = Server group name
+# field26 = Master server name
+# field27 = Retention level
+# field28 = Retention period
+# field29 = Compression
+#### 0=>'disabled', 1=enabled
+# field30 = Estimated number of kilobytes to be written
+# field31 = Estimated files to be written
+# field32 = File list count. The number of files written.
+# field33 = Comma delimited list of file paths written
+# field34 = Try count. The number of tries for the job ID
+# field35 = Try information. A comma-delimited list of try status information
+#### trypid=>'try PID', trystunit=>'storage unit', tryserver=>'server', trystarted=>'time in epoch the try began', 
+#### tryelapsed=>'elapsed time', tryended=>'time in epoch the try ended', trystatus=>'try status code', 
+#### trystatusdescription, trystatuscount=>'number of comma delimited strings in trystatuslines below', 
+#### trystatuslines=>'try status output', trybyteswritten=>'amount of data written in kilobytes', 
+#### tryfileswritten=number of files written
+# field36 = Parent job number
+# field37 = kbpersec - Data transfer speed in kilobytes/second
+# field38 = Copy number
+# field39 = Robot - Robotic library used for the job
+# field40 = Vault ID
+# field41 = Vault profile
+# field42 = Vault session
+# field43 = Number of tapes to eject
+# field44 = Source storage unit
+# field45 = Source media server
+# field46 = Source media ID
+# field47 = Destination media ID
+# field48 = Stream number
+# field49 =>' Suspendable operation: 0=not suspendable', 1=suspendable
+# field50 =>' Resumable operation: 0=not resumable', 1=resumable
+# field51 =>' Restartable: 0=not restartable', 1=restartable
+# field52 = Data movement type
+#### 0=>'standard', 1=>'IR disk only', 2=>'IR disk and storage unit', 3=>'synthetic', 4=>'disk staging', 5=snapshot
+# field53 =>' Snapshot operation: 0=not using snapshot', 1=using snapshot
+# field54 = Backup ID
+# field55 =>' Killable operation: 0=not killable', 1=killable
+# field56 = Controlling host. Host running the active PID for this job.
+# field57 = Off-host type
+# field58 =>' Fiber Transport usage. 0=lan', 1=ft
+# field59 = Queue reason
+#### 0=>'unknown reason', 1=>'media is in use', 2=>'drives are in use', 3=>'Tape media server is not active', 
+#### 4=>'robotic library is down on server', 5=>'max job count reached for storage unit', 
+#### 6=>'waiting for media request delay to expire', 7=>'local drives are down', 
+#### 8=>'media is in a drive that NetBackup is using', 9=>'physical drives not available for use', 
+#### 10=>'cleaning media not available for use', 11=>'drive scan host not active', 12=>'disk media server is not active', 
+#### 13=>'media server is currently not connected to master server', 14=>'media server is not active node of cluster', 
+#### 15=>'storage unit concurrent jobs throttled', 16=>'job history indicates that drives are in use', 17=>'disk volume temporarily unavailable', 
+#### 18=>'max number of concurrent disk volume readers reached', 19=>'disk pool unavailable', 20=>'ft pipes in use', 21=>'disk volume unmounting', 
+#### 22=>'disk volume in use', 23=>'max partially full volumes reached', 24=>'limit reached for logical resource', 25=>'drives in use in storage unit', 
+#### 26=>'waiting for shared tape drive scan to stop', 27=>'waiting for mount of disk volume', 28=>'mountpoint for tape already exists', 
+#### 29=>'pending action', 30=max I/O stream count reached for disk volume
+# field60 = Optional reason string in the following format: reason string (resource queued on)
+# field61 = Deduplication ratio percent
+# field62 = Accelerator optimization
+# field63 = Instance database name
+
+use Getopt::Long;
+use strict;
+use constant NRPE_STATE_OK => 0;
+use constant NRPE_STATE_WARNING => 1;
+use constant NRPE_STATE_CRITICAL => 2;
+use constant NRPE_STATE_UNKNOWN => 3;
+use constant NRPE_STATE_DEPENDENT => 4;
+
+my ($BPDBJOBS,$BPDBJOBS_OPTS,$CONNECT,$BEFORE,%jobtype,%subtype,%policytype,%done,%donefaults,$bpdb_handle_str,$time_deltasecs,$n,$log,@f,@d,$d,$t,$p);
+
+$BPDBJOBS='/usr/openv/netbackup/bin/admincmd/bpdbjobs';
+$BPDBJOBS_OPTS='-most_columns';
+#$CONNECT='ssh root@nbmaster.example.com';
+$BEFORE=(60*60*24*7);
+%jobtype=(
+0=>'backup', 1=>'archive', 2=>'restore', 3=>'verify', 4=>'duplicate', 5=>'phase1/2', 6=>'catalog backup', 7=>'vault duplicate', 8=>'label tape', 9=>'erase tape', 10=>'tape request', 11=>'clean tape', 12=>'format tape', 13=>'inventory', 14=>'test library', 15=>'catalog recovery', 16=>'media contents', 17=>'image cleanup', 18=>'LiveUpdate', 20=>'Replication', 21=>'Import', 22=>'backup From Snapshot', 23=>'Replication (snap)', 24=>'Import (snap)', 25=>'application state capture', 26=>'indexing', 27=>'index cleanup', 28=>'Snapshot', 29=>'SnapIndex', 30=>'ActivateInstantRecovery', 31=>'DeactivateInstantRecovery', 32=>'ReactivateInstantRecovery', 33=>'StopInstantRecovery', 34=>'InstantRecovery'
+);
+%subtype=(
+0=>'immediate', 1=>'scheduled', 2=>'user', 3=>'q erase', 4=>'l erase', 5=>'staging'
+);
+%policytype=(
+0=>'Standard', 4=>'Oracle', 6=>'Informix', 7=>'Sybase', 8=>'SharePoint', 10=>'NetWare', 11=>'DToolsSQL', 13=>'Windows', 14=>'OS/2', 15=>'SQL-Server', 16=>'Exchange', 17=>'SAP', 18=>'DB2', 19=>'NDMP', 20=>'FlashBackup', 22=>'AFS', 25=>'Lotus Notes', 29=>'FlashBackup', 35=>'NBU-Catalog', 39=>'Vault', 40=>'VMware', 41=>'Hyper-V'
+);
+
+
+my $ok=0;
+my $help = 0;
+my $policyt=undef;
+my $deltasecs=$BEFORE;
+$CONNECT ||='';
+my $fault=0;
+my $nrpe='0';
+GetOptions(
+        'help|?' => \$help,
+	'policytype=s' => \$policyt,
+	'deltasecs=i' => \$deltasecs,
+	'connect=s'   => \$CONNECT,
+	'fault'=>\$fault,
+	'nrpe'=> \$nrpe,
+) || pod2usage( 2 );
+pod2usage( 1 ) if $help;
+
+$fault=1 if $nrpe;
+$deltasecs=$BEFORE if $deltasecs == 0;
+if (defined $policyt && $policyt=~/^\d+$/) {
+	$policyt=exists $policytype{$policyt} ? $policytype{$policyt} : undef;
+}
+elsif (defined $policyt) {
+	foreach (values %policytype) {
+		if (lc($policyt) eq lc($_)) {
+			$ok=1;
+			$policyt=$_;
+			last;
+		}
+	}
+}
+$policyt=undef unless $ok;
+$bpdb_handle_str="$CONNECT " if $CONNECT;
+$bpdb_handle_str.=$BPDBJOBS . " $BPDBJOBS_OPTS |";
+unless ( open (BPDBHANDLE,$bpdb_handle_str) ) {
+ print "error [$bpdb_handle_str]: $!\n";
+ exit NRPE_STATE_CRITICAL;
+}
+%done=();
+%donefaults=();
+my @nrpe_str=();
+$n=-1;
+$time_deltasecs=time - $deltasecs;
+while ($log=<BPDBHANDLE>) {
+	@f=split(/\s*,\s*/,$log);
+	last if $f[8] <= $time_deltasecs;
+	next if defined $policyt && $policyt ne $policytype{$f[21]};
+	@d=localtime($f[8]);
+	$d[5]+=1900; $d[4]++;
+	$t=sprintf("%4d-%02d-%02d %02d:%02d:%02d",$d[5],$d[4],$d[3],$d[2],$d[1],$d[0]);
+	$p=$f[4].$f[22].$f[21]; # policy name + Schedule type + Subtype
+	$f[6]=~s/\..*$//;
+	if ($fault && $f[3] eq "0") {
+		$done{$p}=1;
+	}
+	elsif (! exists $done{$p} && ! exists $donefaults{$p}) {
+		$n++;
+		printHeader() if $n == 0 && ! $nrpe;
+		$donefaults{$p}=1;
+		push @nrpe_str, $f[4]." (sc=$f[5],p=".$policytype{$f[21]}.",client=$f[6],start=$t,err=$f[3])" if $nrpe;
+		print sprintf("|%s|% 6d|% 14s|% 5d|%9s|%11s|%02d|% 20.20s|% 7.7s|% 15.15s|% 6s|% 6s|\n",
+			$t,$f[9],$jobtype{$f[1]},$f[3],$subtype{$f[20]},$policytype{$f[21]},$f[12],$f[4],
+			$f[5],$f[6],human_filesize($f[14]),human_filenumber($f[15])) unless $nrpe;
+	}
+
+}
+printFooter() if $n >=0 && ! $nrpe;
+close BPDBHANDLE;
+if ($nrpe) {
+	if (@nrpe_str) {
+		print 'Fault bkp: '.join(', ',@nrpe_str)."\n";
+		exit NRPE_STATE_CRITICAL;
+	}
+	else {
+		print "OK\n";
+		exit NRPE_STATE_OK;
+	}
+}
+
+sub printHeader {
+	print sprintf ("+%s+% 6s+% 14s+% 5s+%9s+%11s+%2s+%20.20s+% 7.7s+%15s+% 6s+% 6s+\n",
+		'-' x 19,'-' x 6,'-' x 14,'-' x 5,'-' x 9,'-' x 11,'--','-' x 20,'-' x 7,'-' x 15,'-' x 6,'-' x 6);
+	print sprintf ("|%s|% 6s|% 14s|% 5s|%9s|%11s|%2s|%20.20s|% 7.7s|%s|% 6s|% 6s|\n",
+		'YYYY-MM-GG hh:mm:ss','deltas','   job type   ','code','bkp type','policy type','rp','       policy       ',' sched ','    client     ','write ','files ');
+	print sprintf ("+%s+% 6s+% 14s+% 5s+%9s+%11s+%2s+%20.20s+% 7.7s+%15s+% 6s+% 6s+\n",
+		'-' x 19,'-' x 6,'-' x 14,'-' x 5,'-' x 9,'-' x 11,'--','-' x 20,'-' x 7,'-' x 15,'-' x 6,'-' x 6);
+}
+
+sub printFooter {
+	print sprintf ("+%s+% 6s+% 14s+% 5s+%9s+%11s+%2s+%20.20s+% 7.7s+%15s+% 6s+% 6s+\n",
+		'-' x 19,'-' x 6,'-' x 14,'-' x 5,'-' x 9,'-' x 11,'--','-' x 20,'-' x 7,'-' x 15,'-' x 6,'-' x 6);
+}
+sub human_filesize {
+        my( $size_in_k ) = @_;
+	return unless defined $size_in_k;
+	return $size_in_k if $size_in_k !~/^\d+$/;
+        if( $size_in_k < 4096 ) {
+                return $size_in_k.'Kb';
+        }
+        my $size_in_meg = int( $size_in_k / 1024 );
+        if ($size_in_meg < 2048) {
+                return $size_in_meg.'Mb';
+        }
+        my $size_in_gig = int( $size_in_meg / 1024 );
+        if ($size_in_gig < 2048) {
+                return $size_in_gig.'Gb';
+        }
+        my $size_in_tb = int( $size_in_gig / 1024 );
+        return $size_in_tb.'Tb'
+}
+sub human_filenumber {
+        my( $file ) = @_;
+	return unless defined $file;
+	return $file if $file !~/^\d+$/;
+        if( $file < 4000 ) {
+                return $file;
+        }
+	my $file_in_k = int( $file / 1000 );
+        if( $file_in_k < 4000 ) {
+                return $file_in_k.'K';
+        }
+        my $file_in_meg = int( $file_in_k / 1000 );
+        if ($file_in_meg < 2000) {
+                return $file_in_meg.'M';
+        }
+        my $file_in_gig = int( $file_in_meg / 1000 );
+        if ($file_in_gig < 2000) {
+                return $file_in_gig.'G';
+        }
+        my $file_in_tb = int( $file_in_gig / 1000 );
+        return $file_in_tb.'T'
+}
+sub pod2usage {
+	print STDERR <<EOF;
+	$0
+	$0 [--help]
+	$0 [--fault] [--policytype=<policy type>] [--deltasecs=<time in seconds from time()>] [--connect=<remote command>] [--nrpe]
+	$0 show only backup logs in the last --deltasecs secs. For each policy name,schedule name and Subtype 
+	   (ex. immediate backup, scheduled backup, user backup, etc) show only the last one.
+	Dove:
+	--help show this help
+	--deltasecs=<time in seconds from time()>
+		default: 1 week (60*60*24*7)
+		show fault from now to --deltasecs 
+	--policytype show only fault backup for this specific policy type
+		Valid value: 0 or Standard, 4 or Oracle, 6 or Informix, 7 or Sybase, 8 or SharePoint,
+		  10 or NetWare, 11 or DToolsSQL, 13 or Windows, 14 or OS/2, 15 or SQL-Server,
+		  16 or Exchange, 17 or SAP, 18 or DB2, 19 or NDMP, 20 or FlashBackup, 22 or AFS,
+		  25 or Lotus Notes, 29 or FlashBackup, 35 or NBU-Catalog, 39 or Vault, 
+		  40 or VMware, 41 or Hyper-V
+	--connect=<remote command su nbmaster server>
+		Example: --connect='ssh root\@nbmaster.example.com'
+		You may set internal variable \$CONNECT, also.
+	--fault show only fault tasks
+	--nrpe show output and exit status for nagios use
+		--nrpe forse option --fault
+EOF
+	exit NRPE_STATE_WARNING;
+}
+
+=head1 COPYRIGHT
+netbkpstatus is Copyright (c) 2014 Enio Carboni - Italy
+netbkpstatus is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+netbkpstatus is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with offline. If not, see <http://www.gnu.org/licenses/>.
+
+=head1 SUPPORT / WARRANTY
+The netbkpstatus is free Open Source software. IT COMES WITHOUT WARRANTY OF ANY KIND.

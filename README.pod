@@ -1,0 +1,40 @@
+d this file do:
+# $ perldoc README
+
+=head1 NAME
+
+B<netbkpstatus>
+
+=head1 DESCRIPTION
+
+Show only backup logs in the last --deltasecs secs. For each policy name,schedule name and Subtype (ex. immediate backup, scheduled backup, user backup, etc) show only the last one.
+
+=head1 SYNOPSIS
+
+B<netbkpstatus> 
+
+B<netbkpstatus> [--help]
+
+B<netbkpstatus> [--fault] [--policytype=<policy type>] [--deltasecs=<time in seconds from time()>] [--connect=<remote command>] [--nrpe]
+
+=head1 COPYRIGHT
+
+netbkpstatus is Copyright (c) 2015 Enio Carboni - Italy
+
+netbkpstatus is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+netbkpstatus is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with offline. If not, see <http://www.gnu.org/licenses/>.
+
+=head1 SUPPORT / WARRANTY
+
+The netbkpstatus is free Open Source software. IT COMES WITHOUT WARRANTY OF ANY KIND.
+
