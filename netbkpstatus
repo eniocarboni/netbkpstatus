@@ -175,6 +175,7 @@ $time_deltasecs=time - $deltasecs;
 while ($log=<BPDBHANDLE>) {
 	@f=split(/\s*,\s*/,$log);
 	last if $f[8] <= $time_deltasecs;
+	next if $f[2] ne '3';
 	next if defined $policyt && $policyt ne $policytype{$f[21]};
 	@d=localtime($f[8]);
 	$d[5]+=1900; $d[4]++;
