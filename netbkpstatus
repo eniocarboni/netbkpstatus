@@ -175,6 +175,7 @@ my @nrpe_str=();
 $n=-1;
 $time_deltasecs=time - $deltasecs;
 while ($log=<BPDBHANDLE>) {
+	$log=~s/\\,/\\;/g; # some fiels escape ','
 	@f=split(/\s*,\s*/,$log);
 	last if $f[8] <= $time_deltasecs;
 	next if $f[2] ne '3';
@@ -182,7 +183,7 @@ while ($log=<BPDBHANDLE>) {
 	@d=localtime($f[8]);
 	$d[5]+=1900; $d[4]++;
 	$t=sprintf("%4d-%02d-%02d %02d:%02d:%02d",$d[5],$d[4],$d[3],$d[2],$d[1],$d[0]);
-	$p=$f[4].$f[22].$f[21].$f[45]; # policy name + Schedule type + Subtype + Stream Number
+	$p=$f[4].$f[22].$f[21].$f[45].$f[6]; # policy name + Schedule type + Subtype + Stream Number + client
 	$f[6]=~s/\..*$//;
 	if ($fault && $f[3] eq "0") {
 		$done{$p}=1;
