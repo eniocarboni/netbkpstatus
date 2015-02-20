@@ -172,6 +172,7 @@ unless ( open (BPDBHANDLE,$bpdb_handle_str) ) {
 %done=();
 %donefaults=();
 my @nrpe_str=();
+my $exit_code_nrpe=NRPE_STATE_WARNING;
 $n=-1;
 $time_deltasecs=time - $deltasecs;
 while ($log=<BPDBHANDLE>) {
@@ -203,7 +204,18 @@ while ($log=<BPDBHANDLE>) {
 		printHeader() if $n == 0 && ! $nrpe;
 		$donefaults{$p}=1;
 		$donefaults{$p_virtual}=1 if $p_virtual;
-		push @nrpe_str, $f[4]." (sc=$f[5],p=".$policytype{$f[21]}.",client=$f[6],start=$t,err=$f[3],stream_n=$f[45])" if $nrpe;
+		if ($nrpe) {
+			# police_name[sched_name] (p=policytype, client=clinet_name, start=start_time,err=error_code,stream_n=stream_number)
+			# where stream_n=stream_number is present when stream_number is valid and >0
+			# and sched_name is present whensched_name is valid and not equal to '-'
+			my $nrpestr=$f[4];
+			$nrpestr.="[$f[5]]" if defined $f[5] && $f[5] ne '-';
+			$nrpestr.=" (p=".$policytype{$f[21]}.",client=$f[6],start=$t,err=$f[3]";
+			$nrpestr.=",stream_n=$f[45]" if defined $f[45] && $f[45] >0;
+			$nrpestr.=")";
+			push @nrpe_str, $nrpestr;
+			$exit_code_nrpe=NRPE_STATE_CRITICAL if $f[3] >1;
+		}
 		print sprintf("|%s|% 6d|% 14s|% 5d|%9s|%11s|%02d|% 20.20s|% 7.7s|% 15.15s|% 2d|% 6s|% 6s|\n",
 			$t,$f[9],$jobtype{$f[1]},$f[3],$subtype{$f[20]},$policytype{$f[21]},$f[12],$f[4],
 			$f[5],$f[6],$f[45],human_filesize($f[14]),human_filenumber($f[15])) unless $nrpe;
@@ -215,7 +227,7 @@ close BPDBHANDLE;
 if ($nrpe) {
 	if (@nrpe_str) {
 		print 'Fault bkp: '.join(', ',@nrpe_str)."\n";
-		exit NRPE_STATE_CRITICAL;
+		exit $exit_code_nrpe;
 	}
 	else {
 		print "OK\n";
@@ -281,7 +293,7 @@ sub pod2usage {
 	$0 [--fault] [--policytype=<policy type>] [--deltasecs=<time in seconds from time()>] [--connect=<remote command>] [--nrpe]
 	$0 show only backup logs in the last --deltasecs secs. For each policy name,schedule name and Subtype 
 	   (ex. immediate backup, scheduled backup, user backup, etc) show only the last one.
-	Dove:
+	where:
 	--help show this help
 	--deltasecs=<time in seconds from time()>
 		default: 1 week (60*60*24*7)

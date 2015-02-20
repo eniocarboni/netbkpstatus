@@ -17,6 +17,24 @@ B<netbkpstatus> [--help]
 
 B<netbkpstatus> [--fault] [--policytype=<policy type>] [--deltasecs=<time in seconds from time()>] [--connect=<remote command>] [--nrpe]
 
+	where:
+	--help show this help
+	--deltasecs=<time in seconds from time()>
+		default: 1 week (60*60*24*7)
+		show fault from now to --deltasecs 
+	--policytype show only fault backup for this specific policy type
+		Valid value: 0 or Standard, 4 or Oracle, 6 or Informix, 7 or Sybase, 8 or SharePoint,
+		  10 or NetWare, 11 or DToolsSQL, 13 or Windows, 14 or OS/2, 15 or SQL-Server,
+		  16 or Exchange, 17 or SAP, 18 or DB2, 19 or NDMP, 20 or FlashBackup, 22 or AFS,
+		  25 or Lotus Notes, 29 or FlashBackup, 35 or NBU-Catalog, 39 or Vault, 
+		  40 or VMware, 41 or Hyper-V
+	--connect=<remote command su nbmaster server>
+		Example: --connect='ssh root\@nbmaster.example.com'
+		You may set internal variable \$CONNECT, also.
+	--fault show only fault tasks
+	--nrpe show output and exit status for nagios use
+		--nrpe forse option --fault
+
 =head1 COPYRIGHT
 
 netbkpstatus is Copyright (c) 2015 Enio Carboni - Italy
